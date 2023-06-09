@@ -19,25 +19,42 @@ limitations under the License.
 #include "outputs.h"
 #include <iostream>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 namespace falco
 {
-namespace outputs
-{
+	namespace outputs
+	{
 
-class output_file : public abstract_output
-{
-	void output(const message *msg);
+	class output_file : public abstract_output
+	{
+		void output(const message *msg);
 
-	void cleanup();
+		void cleanup();
 
-	void reopen();
+		void reopen();
 
-private:
-	void open_file();
+	private:
+		void open_socket();
 
-	std::ofstream m_outfile;
-};
+		std::string serialize_message(const message *msg);
 
-} // namespace outputs
+		nlohmann::json payload;
+		int socket_fd = -1;
+	};
+	//class output_file : public abstract_output
+	//{
+	//	void output(const message *msg);
+	//
+	//	void cleanup();
+	//
+	//	void reopen();
+	//
+	//private:
+	//	void open_file();
+	//
+	//	std::ofstream m_outfile;
+	//};
+
+	} // namespace outputs
 } // namespace falco
