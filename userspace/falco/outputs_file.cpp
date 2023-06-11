@@ -31,7 +31,7 @@ std::string falco::outputs::output_file::serialize_message(const message *msg){
 	payload["source"] = msg->source;
 	payload["fields"] = msg->fields;
 	payload["tags"] = msg->tags;
-	return payload.dump();
+	return payload.dump()+'\n';
 }
 
 void falco::outputs::output_file::open_socket()
