@@ -39,7 +39,8 @@ void falco::outputs::output_file::open_socket()
 	if(socket_fd == -1) {
 		socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 		if (socket_fd == -1) {
-			throw falco_exception("failed to open the socket");
+			return ;
+			//throw falco_exception("failed to open the socket");
 		}
 
 		// 设置Unix域套接字地址
@@ -51,7 +52,8 @@ void falco::outputs::output_file::open_socket()
 		if (connect(socket_fd, (struct ::sockaddr *) &addr, sizeof(addr)) == -1) {
 			close(socket_fd);
 			socket_fd = -1;
-			throw falco_exception("failed to connect the socket sock file");
+			return ;
+			//throw falco_exception("failed to connect the socket sock file");
 		}
 	}
 }
@@ -60,10 +62,11 @@ void falco::outputs::output_file::output(const message *msg)
 {
 	open_socket();
 	std::string msg_str = serialize_message(msg);
-	if (send(socket_fd, msg_str.c_str(), msg_str.size(), 0) == -1)
+	if (socket_fd != -1 && send(socket_fd, msg_str.c_str(), msg_str.size(), 0) == -1)
 	{
 		// 发送失败，可能是连接断开了
 		close(socket_fd);
+		socket_fd = -1;
 		throw falco_exception("disconnect");
 	}
 
@@ -78,6 +81,7 @@ void falco::outputs::output_file::cleanup()
 	if(socket_fd != -1)
 	{
 		close(socket_fd);
+		socket_fd = -1;
 	}
 }
 
